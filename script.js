@@ -47,6 +47,7 @@
 
                     $('#login').hide();
                     $('#loggedin').show();
+                    $('#savedTrackList').show();
                 }
             });
         }
@@ -54,65 +55,66 @@
             // render initial screen
             $('#login').show();
             $('#loggedin').hide();
+            $('#savedTrackList').hide();
+
         }
 
-        document.getElementById('obtain-new-token').addEventListener('click', function () {
-            $.ajax({
-                url: '/refresh_token',
-                data: {
-                    'refresh_token': refresh_token
-                }
-            }).done(function (data) {
-                access_token = data.access_token;
-                oauthPlaceholder.innerHTML = oauthTemplate({
-                    access_token: access_token,
-                    refresh_token: refresh_token
-                });
-            });
-        }, false);
-    }
+        //document.getElementById('obtain-new-token').addEventListener('click', function () {
+        //    $.ajax({
+        //        url: '/refresh_token',
+        //        data: {
+        //            'refresh_token': refresh_token
+        //        }
+        //    }).done(function (data) {
+        //        access_token = data.access_token;
+        //        oauthPlaceholder.innerHTML = oauthTemplate({
+        //            access_token: access_token,
+        //            refresh_token: refresh_token
+        //        });
+        //    });
+        //}, false);
+    }    
+})();
 
+function loadTracks() {
     var socket = io.connect('http://localhost:8080');
     socket.on('tracks', function (data) {
-        var artistId;
-        var artistName
-    //    console.log(data);
-        var h = ' ';
-        var trackArray = data.tracks;
-        for (var i = 0; i < trackArray.length; i++) {
-            var num = i + 1;
-            var song = trackArray[i];
-            var trackArtist = song.name;
-            var numArtist = trackArray[i].name.length;
-            for (var x = 0; x < trackArtist.length; x++) {
-                if (trackArtist.length === 1) {
-                    artistId = trackArtist[x].id;
-                    artistName = trackArtist[x].name;
-      //              console.log(song.track + ' : ' + artistName);
-      //              console.log('song has ONE artist');
-
-                } else if (trackArtist.length >=2) {          
-                    var art1 = trackArtist[0].name;
-                    var art2 = trackArtist[1].name;          
-                    artistId = trackArtist[x].id;
-                }
-
-
-            //From here I need to go back and figure out how to save the songs to a mongo database. 
-            }      
-            
-            if (numArtist === 1) {
-                h += '<div>' + num + '.  ' + song.track + ' By:  ' + artistName + '</div>';
-            } else {
-                h += '<div>' + num + '.  ' + song.track + ' By:  ' + art1 + ' ft. ' + art2 + '</div>';
-
+    var artistId;
+    var artistName;
+    var h = ' ';
+    var trackArray = data.tracks;
+    for (var i = 0; i < trackArray.length; i++) {
+        var num = i + 1;
+        var song = trackArray[i];
+        var trackArtist = song.name;
+        var numArtist = trackArray[i].name.length;
+        for (var x = 0; x < trackArtist.length; x++) {
+            if (trackArtist.length === 1) {
+                artistId = trackArtist[x].id;
+                artistName = trackArtist[x].name;
+            }
+            else if (trackArtist.length === 2) {
+                var art1 = trackArtist[0].name;
+                var art2 = trackArtist[1].name;
+                artistId = trackArtist[x].id;
+            }
+            else if (trackArtist.length >= 2) {
+                var art1 = trackArtist[0];
+                var art2 = trackArtist[1];
+                var art3 = trackArtist[2];
+                artistId = trackArtist[x].id;
             }
         }
-     
-        alert('There are ' + trackArray.length + ' songs retrieved from your playlist');
+        if (numArtist === 1) { h += '<div>' + num + '.  ' + song.track + ' By:  ' + artistName + '</div>'; }
+        else if (numArtist === 2) { h += '<div>' + num + '.  ' + song.track + ' By:  ' + art1 + ' ft. ' + art2 + '</div>'; }
+        else { h += '<div>' + num + '.  ' + song.track + ' By:  ' + art1.name + ' ft. ' + art2.name + ' and ' + art3.name + '</div>'; }
+    }
 
-     
-        document.getElementById('trackOutput').innerHTML = h;
+ 
+      alert('There are ' + trackArray.length + ' songs retrieved from our database');
 
-    });
-})();
+
+    document.getElementById('trackOutput').innerHTML = h;
+
+});
+}
