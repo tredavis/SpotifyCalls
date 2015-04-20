@@ -77,44 +77,49 @@
 })();
 
 function loadTracks() {
+    $('#loadButton ').hide();
     var socket = io.connect('http://localhost:8080');
     socket.on('tracks', function (data) {
-    var artistId;
-    var artistName;
-    var h = ' ';
-    var trackArray = data.tracks;
-    for (var i = 0; i < trackArray.length; i++) {
-        var num = i + 1;
-        var song = trackArray[i];
-        var trackArtist = song.name;
-        var numArtist = trackArray[i].name.length;
-        for (var x = 0; x < trackArtist.length; x++) {
-            if (trackArtist.length === 1) {
-                artistId = trackArtist[x].id;
-                artistName = trackArtist[x].name;
+        var populateData = function () {
+            console.log(data.tracks);
+            var artistId;
+            var artistName, art1, art2, art3;
+            var h = ' ';
+            var trackArray = data.tracks;
+            for (var i = 0; i < trackArray.length; i++) {
+                var num = i + 1;
+                var song = trackArray[i];
+                var trackArtist = song.name;
+                var numArtist = trackArray[i].name.length;
+                for (var x = 0; x < trackArtist.length; x++) {
+                    if (trackArtist.length === 1) {
+                        artistId = trackArtist[x].id;
+                        artistName = trackArtist[x].name;
+                    }
+                    else if (trackArtist.length === 2) {
+                         art1 = trackArtist[0].name;
+                         art2 = trackArtist[1].name;
+                        artistId = trackArtist[x].id;
+                    }
+                    else if (trackArtist.length >= 2) {
+                         art1 = trackArtist[0];
+                         art2 = trackArtist[1];
+                         art3 = trackArtist[2];
+                        artistId = trackArtist[x].id;
+                    }
+                }
+                if (numArtist === 1) { h += '<div>' + num + '.  ' + song.track + ' By:  ' + artistName + '</div>'; }
+                else if (numArtist === 2) { h += '<div>' + num + '.  ' + song.track + ' By:  ' + art1 + ' ft. ' + art2 + '</div>'; }
+                else { h += '<div>' + num + '.  ' + song.track + ' By:  ' + art1.name + ' ft. ' + art2.name + ' and ' + art3.name + '</div>'; }
             }
-            else if (trackArtist.length === 2) {
-                var art1 = trackArtist[0].name;
-                var art2 = trackArtist[1].name;
-                artistId = trackArtist[x].id;
-            }
-            else if (trackArtist.length >= 2) {
-                var art1 = trackArtist[0];
-                var art2 = trackArtist[1];
-                var art3 = trackArtist[2];
-                artistId = trackArtist[x].id;
-            }
+            alert('There are ' + trackArray.length + ' songs retrieved from our database');
+            document.getElementById('trackOutput').innerHTML = h;
         }
-        if (numArtist === 1) { h += '<div>' + num + '.  ' + song.track + ' By:  ' + artistName + '</div>'; }
-        else if (numArtist === 2) { h += '<div>' + num + '.  ' + song.track + ' By:  ' + art1 + ' ft. ' + art2 + '</div>'; }
-        else { h += '<div>' + num + '.  ' + song.track + ' By:  ' + art1.name + ' ft. ' + art2.name + ' and ' + art3.name + '</div>'; }
-    }
-
- 
-      alert('There are ' + trackArray.length + ' songs retrieved from our database');
-
-
-    document.getElementById('trackOutput').innerHTML = h;
-
+        if (!data) {
+            console.log('Waiting for data to load');
+            setTimeout(function () { populateData() }, 3000);
+        } else {
+            populateData();
+        }
 });
 }

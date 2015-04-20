@@ -1,10 +1,26 @@
-body{
-
+body {
 }
 
-#savedTrackList{
+#savedTrackList {
     font-size: 18px;
-    color:#009900;
+    color: #009900;
     font-weight: 500;
-    font-style:oblique
+    font-style: oblique;
+}
+
+#login, #loggedin {
+    display: none;
+}
+
+.text-overflow {
+    /*overflow: hidden;*/
+    text-overflow: ellipsis;
+    /*white-space: nowrap;*/
+    width: 100%;
+}
+h2{
+    text-align: center;
+}
+#trackOutput{
+    text-align:center;
 }
