@@ -76,9 +76,19 @@
     }    
 })();
 
-function loadTracks() {
+
+$("userName").change(function () {
+    console.log('hello');
+    loadTracks();
+});
+
+
+function loadTracks() {    
+    
     $('#loadButton ').hide();
     var socket = io.connect('http://localhost:8080');
+    var userName = document.getElementById('userName').value;
+    socket.emit('user', { userName: userName });
     socket.on('tracks', function (data) {
         var populateData = function () {
             console.log(data.tracks);
@@ -91,17 +101,18 @@ function loadTracks() {
                 var song = trackArray[i];
                 var trackArtist = song.name;
                 var numArtist = trackArray[i].name.length;
-                for (var x = 0; x < trackArtist.length; x++) {
-                    if (trackArtist.length === 1) {
+                var artistCount = trackArtist.length;
+                for (var x = 0; x < artistCount; x++) {
+                    if (artistCount  === 1) {
                         artistId = trackArtist[x].id;
                         artistName = trackArtist[x].name;
                     }
-                    else if (trackArtist.length === 2) {
+                    else if (artistCount === 2) {
                          art1 = trackArtist[0].name;
                          art2 = trackArtist[1].name;
                         artistId = trackArtist[x].id;
                     }
-                    else if (trackArtist.length >= 2) {
+                    else if (artistCount >= 2) {
                          art1 = trackArtist[0];
                          art2 = trackArtist[1];
                          art3 = trackArtist[2];
@@ -117,7 +128,7 @@ function loadTracks() {
         }
         if (!data) {
             console.log('Waiting for data to load');
-            setTimeout(function () { populateData() }, 3000);
+            setInterval(function () { populateData() }, 3000);
         } else {
             populateData();
         }
