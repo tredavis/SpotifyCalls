@@ -80,7 +80,7 @@
 $("userName").change(function () {
     console.log('hello');
     loadTracks();
-});
+}); 
 
 
 function loadTracks() {    
