@@ -73,18 +73,12 @@
         //        });
         //    });
         //}, false);
-    }    
+    }
 })();
 
 
-$("userName").change(function () {
-    console.log('hello');
-    loadTracks();
-}); 
+function loadTracks() {
 
-
-function loadTracks() {    
-    
     $('#loadButton ').hide();
     var socket = io.connect('http://localhost:8080');
     var userName = document.getElementById('userName').value;
@@ -103,19 +97,19 @@ function loadTracks() {
                 var numArtist = trackArray[i].name.length;
                 var artistCount = trackArtist.length;
                 for (var x = 0; x < artistCount; x++) {
-                    if (artistCount  === 1) {
+                    if (artistCount === 1) {
                         artistId = trackArtist[x].id;
                         artistName = trackArtist[x].name;
                     }
                     else if (artistCount === 2) {
-                         art1 = trackArtist[0].name;
-                         art2 = trackArtist[1].name;
+                        art1 = trackArtist[0].name;
+                        art2 = trackArtist[1].name;
                         artistId = trackArtist[x].id;
                     }
                     else if (artistCount >= 2) {
-                         art1 = trackArtist[0];
-                         art2 = trackArtist[1];
-                         art3 = trackArtist[2];
+                        art1 = trackArtist[0];
+                        art2 = trackArtist[1];
+                        art3 = trackArtist[2];
                         artistId = trackArtist[x].id;
                     }
                 }
@@ -132,5 +126,12 @@ function loadTracks() {
         } else {
             populateData();
         }
+    });
+
+};
+$(function () {
+    $("#userName").change(function () {
+        loadTracks();
+
+    });
 });
-}
