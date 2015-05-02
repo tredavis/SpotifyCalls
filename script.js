@@ -77,61 +77,57 @@
 })();
 
 
-function loadTracks() {
 
-    $('#loadButton ').hide();
-    var socket = io.connect('http://localhost:8080');
-    var userName = document.getElementById('userName').value;
-    socket.emit('user', { userName: userName });
-    socket.on('tracks', function (data) {
-        var populateData = function () {
-            console.log(data.tracks);
-            var artistId;
-            var artistName, art1, art2, art3;
-            var h = ' ';
-            var trackArray = data.tracks;
-            for (var i = 0; i < trackArray.length; i++) {
-                var num = i + 1;
-                var song = trackArray[i];
-                var trackArtist = song.name;
-                var numArtist = trackArray[i].name.length;
-                var artistCount = trackArtist.length;
-                for (var x = 0; x < artistCount; x++) {
-                    if (artistCount === 1) {
-                        artistId = trackArtist[x].id;
-                        artistName = trackArtist[x].name;
-                    }
-                    else if (artistCount === 2) {
-                        art1 = trackArtist[0].name;
-                        art2 = trackArtist[1].name;
-                        artistId = trackArtist[x].id;
-                    }
-                    else if (artistCount >= 2) {
-                        art1 = trackArtist[0];
-                        art2 = trackArtist[1];
-                        art3 = trackArtist[2];
-                        artistId = trackArtist[x].id;
-                    }
-                }
-                if (numArtist === 1) { h += '<div>' + num + '.  ' + song.track + ' By:  ' + artistName + '</div>'; }
-                else if (numArtist === 2) { h += '<div>' + num + '.  ' + song.track + ' By:  ' + art1 + ' ft. ' + art2 + '</div>'; }
-                else { h += '<div>' + num + '.  ' + song.track + ' By:  ' + art1.name + ' ft. ' + art2.name + ' and ' + art3.name + '</div>'; }
-            }
-            alert('There are ' + trackArray.length + ' songs retrieved from our database');
-            document.getElementById('trackOutput').innerHTML = h;
-        }
-        if (!data) {
-            console.log('Waiting for data to load');
-            setInterval(function () { populateData() }, 3000);
-        } else {
-            populateData();
-        }
-    });
-
-};
 $(function () {
     $("#userName").change(function () {
-        loadTracks();
-
+        (function loadTracks() {
+            $('#loadButton ').fadeOut(2000);
+            var socket = io.connect('http://localhost:8080');
+            var userName = document.getElementById('userName').value;
+            socket.emit('user', { userName: userName });
+            socket.on('tracks', function (data) {
+                var populateData = function () {
+                    var artistId;
+                    var artistName, art1, art2, art3;
+                    var h = ' ';
+                    var trackArray = data.tracks;
+                    for (var i = 0; i < trackArray.length; i++) {
+                        var num = i + 1;
+                        var song = trackArray[i];
+                        var trackArtist = song.name;
+                        var numArtist = trackArray[i].name.length;
+                        var artistCount = trackArtist.length;
+                        for (var x = 0; x < artistCount; x++) {
+                            if (artistCount === 1) {
+                                artistId = trackArtist[x].id;
+                                artistName = trackArtist[x].name;
+                            }
+                            else if (artistCount === 2) {
+                                art1 = trackArtist[0].name;
+                                art2 = trackArtist[1].name;
+                                artistId = trackArtist[x].id;
+                            }
+                            else if (artistCount >= 2) {
+                                art1 = trackArtist[0];
+                                art2 = trackArtist[1];
+                                art3 = trackArtist[2];
+                                artistId = trackArtist[x].id;
+                            }
+                        }
+                        if (numArtist === 1) { h += '<div>' + num + '.  ' + song.track + ' By:  ' + artistName + '</div>'; }
+                        else if (numArtist === 2) { h += '<div>' + num + '.  ' + song.track + ' By:  ' + art1 + ' ft. ' + art2 + '</div>'; }
+                        else { h += '<div>' + num + '.  ' + song.track + ' By:  ' + art1.name + ' ft. ' + art2.name + ' and ' + art3.name + '</div>'; }
+                    }
+                    toastr.info('There are ' + trackArray.length + ' songs retrieved from our database');
+                    document.getElementById('trackOutput').innerHTML = h;
+                }
+                if (!data) {
+                    console.log('Waiting for data to load');
+                    setInterval(function () { populateData() }, 3000);
+                } else {
+                    populateData();
+                }
+            });
+        })();
     });
 });
