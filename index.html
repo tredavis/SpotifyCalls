@@ -4,7 +4,8 @@
     <title>Example of the Authorization Code flow with Spotify</title>
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
     <link href="stylesheet.css" type="text/css" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" type="text/css" rel="stylesheet"></head>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" type="text/css" rel="stylesheet">
+</head>
 
 <body>
     <div class="container">
@@ -13,30 +14,33 @@
                 <h1>This is an example of the Authorization Code flow</h1>
                 <a href="/login" class="btn btn-primary">Log in with Spotify</a>
             </div>
-            <div  class="col-sm-12" id="loggedin">
+            <div class="col-sm-12" id="loggedin">
                 <div id="user-profile">
                 </div>
                 <div id="oauth">
                 </div>
                 <!--<button class="btn btn-default" id="obtain-new-token">Obtain new token using the refresh token</button>-->
-            </div>           
+            </div>
         </div>
-        <div id="savedTrackList" class="" style="font-size: 18px">
-            <br />
-
-            <br />
-            <h2> Your Saved Tracks </h2>
-            <div class="" id="trackOutput">
-                <select id="userName" class="form-group">
-                    <option value="tre"> tre</option>
-                    <option value="sam"> sam</option>
-                    <option value="tyler"> tyler</option>
-                </select>
-                <button id="loadButton" class="btn btn-success" onclick="loadTracks()"> Click Here to Display Saved Tracks</button>
+        <div id="savedTrackList" class="col-sm-12" style="font-size: 18px">
+            <div id="friendDropDown" class="">
+                <div>
+                    Friends:
+                    <select id="userName" class="form-group">
+                        <option value="null"> N/A </option>
+                        <option value="tre"> tre</option>
+                        <option value="sam"> sam</option>
+                        <option value="tyler"> tyler</option>
+                    </select>
+                </div>
+            </div>
+            <div id="trackOutputDiv" style="font-size: 18px">
+                <div id="trackOutput">
+                </div>
             </div>
         </div>
     </div>
-    
+
 
 
     <script id="user-profile-template" type="text/x-handlebars-template">

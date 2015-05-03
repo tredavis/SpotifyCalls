@@ -22,5 +22,19 @@ h2{
     text-align: center;
 }
 #trackOutput{
+    word-wrap:break-word;
+}
+
+#trackOutputDiv {
+    float:right
+}
+
+#friendDropDown {
+    
     text-align:center;
+}
+
+#greenBanner {
+    background-color:#009000;
+    color: #000;
 }

@@ -79,17 +79,43 @@
 
 
 $(function () {
+    function capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+    //Makes changes to the toastr button
+    toastr.options = {
+        "closeButton": true,
+        "debug": false,
+        "newestOnTop": true,
+        "progressBar": false,
+        "positionClass": "toast-top-right",
+        "preventDuplicates": true,
+        "onclick": null,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "2000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    }
+
     $("#userName").change(function () {
         (function loadTracks() {
-            $('#loadButton ').fadeOut(2000);
+            //variable that stores the a button
+            var compareTracksButton = '<br > <button id="test" class="btn btn-info"> Compare Tracks </button>';
+            $('#loadButton ').fadeOut('slow');
             var socket = io.connect('http://localhost:8080');
-            var userName = document.getElementById('userName').value;
+            var userName = '';
+            userName = document.getElementById('userName').value;
+            var name = capitalizeFirstLetter(userName);
             socket.emit('user', { userName: userName });
             socket.on('tracks', function (data) {
                 var populateData = function () {
                     var artistId;
                     var artistName, art1, art2, art3;
-                    var h = ' ';
+                    var h = '<h2 id="greenBanner"> Showing Tracks from ' + name +  "'s database </h2>" ;
                     var trackArray = data.tracks;
                     for (var i = 0; i < trackArray.length; i++) {
                         var num = i + 1;
@@ -118,12 +144,12 @@ $(function () {
                         else if (numArtist === 2) { h += '<div>' + num + '.  ' + song.track + ' By:  ' + art1 + ' ft. ' + art2 + '</div>'; }
                         else { h += '<div>' + num + '.  ' + song.track + ' By:  ' + art1.name + ' ft. ' + art2.name + ' and ' + art3.name + '</div>'; }
                     }
-                    toastr.info('There are ' + trackArray.length + ' songs retrieved from our database');
+                    toastr.success('There are ' + trackArray.length + ' songs saved for ' + name + compareTracksButton);
                     document.getElementById('trackOutput').innerHTML = h;
                 }
                 if (!data) {
                     console.log('Waiting for data to load');
-                    setInterval(function () { populateData() }, 3000);
+                    setInterval(function () { populateData() }, 1000);
                 } else {
                     populateData();
                 }
