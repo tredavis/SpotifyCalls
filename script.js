@@ -84,7 +84,7 @@ $(function () {
     }
     //Makes changes to the toastr button
     toastr.options = {
-        "closeButton": true,
+        "closeButton": false,
         "debug": false,
         "newestOnTop": true,
         "progressBar": false,
@@ -102,6 +102,7 @@ $(function () {
     }
 
     $("#userName").change(function () {
+
         (function loadTracks() {
             //variable that stores the a button
             var compareTracksButton = '<br > <button id="test" class="btn btn-info"> Compare Tracks </button>';
@@ -110,50 +111,105 @@ $(function () {
             var userName = '';
             userName = document.getElementById('userName').value;
             var name = capitalizeFirstLetter(userName);
-            socket.emit('user', { userName: userName });
-            socket.on('tracks', function (data) {
-                var populateData = function () {
-                    var artistId;
-                    var artistName, art1, art2, art3;
-                    var h = '<h2 id="greenBanner"> Showing Tracks from ' + name +  "'s database </h2>" ;
-                    var trackArray = data.tracks;
-                    for (var i = 0; i < trackArray.length; i++) {
-                        var num = i + 1;
-                        var song = trackArray[i];
-                        var trackArtist = song.name;
-                        var numArtist = trackArray[i].name.length;
-                        var artistCount = trackArtist.length;
-                        for (var x = 0; x < artistCount; x++) {
-                            if (artistCount === 1) {
-                                artistId = trackArtist[x].id;
-                                artistName = trackArtist[x].name;
+            if (userName != 'null') {
+                socket.emit('user', { userName: userName });
+                socket.on('tracks', function (data) {
+                    if (data) {
+                        (function populateData() {
+                            var artistId;
+                            var songPop = [];
+                            var trackArtistIdArray = [];
+                            var artistName, art1, art2, art3;
+                            var h = '<h2 id="greenBanner"> Showing Tracks from ' + name + "'s database </h2>";
+                            var trackArray = data.tracks;
+                            for (var i = 0; i < trackArray.length; i++) {
+                                var num = i + 1;
+                                var song = trackArray[i];
+                                var preview = ' <a href=" ' + song.previewSong + '"> Listen Here </a> ';
+                                var trackArtist = song.artistName;
+                                var numArtist = trackArray[i].artistName.length;
+                                var artistCount = trackArtist.length;
+                                for (var x = 0; x < artistCount; x++) {
+                                    if (artistCount === 1) {
+                                        artistId = trackArtist[x].id;
+                                        artistName = trackArtist[x].name;
+                                        trackArtistIdArray.push(artistId);
+                                    }
+                                    else if (artistCount === 2) {
+                                        art1Id = trackArtist[0].id;
+                                        art2Id = trackArtist[1].id;
+                                        art1 = trackArtist[0].name;
+                                        art2 = trackArtist[1].name;
+                                        artistId = trackArtist[x].id;
+                                        trackArtistIdArray.push(art1Id, art2Id);
+                                    }
+                                    else if (artistCount >= 2) {
+                                        art1Id = trackArtist[0].id;
+                                        art2Id = trackArtist[1].id;
+                                        art3Id = trackArtist[2].id;
+                                        art1 = trackArtist[0].name;
+                                        art2 = trackArtist[1].name;
+                                        art3 = trackArtist[2].name;
+                                        artistId = trackArtist[x].id;
+                                        trackArtistIdArray.push(art1Id, art2Id, art3Id);
+                                    }
+                                }
+                                songPop.push(song.popularity);
+                                if (numArtist === 1) { h += '<div>' + num + '.  ' + song.trackName + ' By:  ' + artistName + preview + '</div>'; }
+                                else if (numArtist === 2) { h += '<div>' + num + '.  ' + song.trackName + ' By:  ' + art1 + ' ft. ' + art2 + preview + '</div>'; }
+                                else { h += '<div>' + num + '.  ' + song.trackName + ' By:  ' + art1 + ' ft. ' + art2 + ' and ' + art3 + preview + '</div>'; }
                             }
-                            else if (artistCount === 2) {
-                                art1 = trackArtist[0].name;
-                                art2 = trackArtist[1].name;
-                                artistId = trackArtist[x].id;
-                            }
-                            else if (artistCount >= 2) {
-                                art1 = trackArtist[0];
-                                art2 = trackArtist[1];
-                                art3 = trackArtist[2];
-                                artistId = trackArtist[x].id;
-                            }
-                        }
-                        if (numArtist === 1) { h += '<div>' + num + '.  ' + song.track + ' By:  ' + artistName + '</div>'; }
-                        else if (numArtist === 2) { h += '<div>' + num + '.  ' + song.track + ' By:  ' + art1 + ' ft. ' + art2 + '</div>'; }
-                        else { h += '<div>' + num + '.  ' + song.track + ' By:  ' + art1.name + ' ft. ' + art2.name + ' and ' + art3.name + '</div>'; }
+                            //  console.log(songPop);
+                            toastr.success('There are ' + trackArray.length + ' songs saved for ' + name + compareTracksButton);
+                            document.getElementById('trackOutput').innerHTML = h;
+                            removeDuplicates(trackArtistIdArray);
+                            return average(songPop);
+                        })();
                     }
-                    toastr.success('There are ' + trackArray.length + ' songs saved for ' + name + compareTracksButton);
-                    document.getElementById('trackOutput').innerHTML = h;
-                }
-                if (!data) {
-                    console.log('Waiting for data to load');
-                    setInterval(function () { populateData() }, 1000);
-                } else {
-                    populateData();
-                }
-            });
+                    //if (!data) {
+                    //    console.log('Waiting for data to load');
+                    //    setInterval(function () { populateData() }, 1000);
+               // } 
+                else {
+                    //    populateData();
+                    }
+
+
+                });
+            }
+            else {
+                console.log('there is no user selected');
+            }
         })();
+
+        function average(arr) {
+            var total = 0;
+            var avg;
+            $.each(arr, function () {
+                total += this;
+                avg = (Math.round(total / arr.length));
+            });
+          return hipsterFunction(avg)
+        };
+        function removeDuplicates(array) {
+            var parsedIds = [];
+            $.each(array, function (i, el) {
+                if ($.inArray(el, parsedIds) === -1) parsedIds.push(el);
+            });
+            return createArtistForCall(parsedIds);
+        }
+        function createArtistForCall(arr) {
+            var i, d, idBin, limit = 50;
+            for (i = 0, d = arr.length; i < d; i += limit) {
+                idBin = arr.slice(i, i + limit);
+             //   console.log(idBin);
+            }
+        }
+        function hipsterFunction(score) {
+            console.log(score);
+            var hipsterStatus = 0;
+             hipsterStatus = (100 - score);
+            toastr.info('Chances are ' + hipsterStatus + '% you are a  hipster');
+        }
     });
 });

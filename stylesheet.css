@@ -23,10 +23,11 @@ h2{
 }
 #trackOutput{
     word-wrap:break-word;
+    width: 500px    
 }
 
 #trackOutputDiv {
-    float:right
+   
 }
 
 #friendDropDown {
