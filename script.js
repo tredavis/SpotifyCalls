@@ -102,7 +102,6 @@ $(function () {
     }
 
     $("#userName").change(function () {
-
         (function loadTracks() {
             //variable that stores the a button
             var compareTracksButton = '<br > <button id="test" class="btn btn-info"> Compare Tracks </button>';
@@ -112,10 +111,11 @@ $(function () {
             userName = document.getElementById('userName').value;
             var name = capitalizeFirstLetter(userName);
             if (userName != 'null') {
-                socket.emit('user', { userName: userName });
+                socket.emit('user', { userName: userName });                
                 socket.on('tracks', function (data) {
                     if (data) {
                         (function populateData() {
+                        //    console.log(data); //Sam and Tyler
                             var artistId;
                             var songPop = [];
                             var trackArtistIdArray = [];
@@ -123,11 +123,19 @@ $(function () {
                             var h = '<h2 id="greenBanner"> Showing Tracks from ' + name + "'s database </h2>";
                             var trackArray = data.tracks;
                             for (var i = 0; i < trackArray.length; i++) {
-                                var num = i + 1;
-                                var song = trackArray[i];
-                                var preview = ' <a href=" ' + song.previewSong + '"> Listen Here </a> ';
-                                var trackArtist = song.artistName;
-                                var numArtist = trackArray[i].artistName.length;
+                                var song = trackArray[i];                                var num = i + 1;
+                                //If tyler or sam selected. The values will equal something different
+                                if (userName == 'sam' || userName == 'tyler') {
+                                    console.log(song);
+                                    var trackArtist = song.name;
+                                    var numArtist = trackArray[i].name.length;
+                                    var songName = song.track;
+                                } else {
+                                    var trackArtist = song.artistName;
+                                    var numArtist = trackArray[i].artistName.length;
+                                    var preview = ' <a href=" ' + song.previewSong + '"> Listen Here </a> ';
+                                    var songName = song.trackName;
+                                }
                                 var artistCount = trackArtist.length;
                                 for (var x = 0; x < artistCount; x++) {
                                     if (artistCount === 1) {
@@ -155,9 +163,9 @@ $(function () {
                                     }
                                 }
                                 songPop.push(song.popularity);
-                                if (numArtist === 1) { h += '<div>' + num + '.  ' + song.trackName + ' By:  ' + artistName + preview + '</div>'; }
-                                else if (numArtist === 2) { h += '<div>' + num + '.  ' + song.trackName + ' By:  ' + art1 + ' ft. ' + art2 + preview + '</div>'; }
-                                else { h += '<div>' + num + '.  ' + song.trackName + ' By:  ' + art1 + ' ft. ' + art2 + ' and ' + art3 + preview + '</div>'; }
+                                if (numArtist === 1) { h += '<div>' + num + '.  ' + songName + ' By:  ' + artistName + preview + '</div>'; }
+                                else if (numArtist === 2) { h += '<div>' + num + '.  ' + songName + ' By:  ' + art1 + ' ft. ' + art2 + preview + '</div>'; }
+                                else { h += '<div>' + num + '.  ' + songName + ' By:  ' + art1 + ' ft. ' + art2 + ' and ' + art3 + preview + '</div>'; }
                             }
                             //  console.log(songPop);
                             toastr.success('There are ' + trackArray.length + ' songs saved for ' + name + compareTracksButton);
@@ -166,12 +174,12 @@ $(function () {
                             return average(songPop);
                         })();
                     }
-                    //if (!data) {
-                    //    console.log('Waiting for data to load');
-                    //    setInterval(function () { populateData() }, 1000);
-               // } 
-                else {
-                    //    populateData();
+                        //if (!data) {
+                        //    console.log('Waiting for data to load');
+                        //    setInterval(function () { populateData() }, 1000);
+                        // } 
+                    else {
+                        //    populateData();
                     }
 
 
@@ -189,7 +197,7 @@ $(function () {
                 total += this;
                 avg = (Math.round(total / arr.length));
             });
-          return hipsterFunction(avg)
+            return hipsterFunction(avg)
         };
         function removeDuplicates(array) {
             var parsedIds = [];
@@ -199,17 +207,30 @@ $(function () {
             return createArtistForCall(parsedIds);
         }
         function createArtistForCall(arr) {
-            var i, d, idBin, limit = 50;
+            var artistProfileArray = [];
+            var socket = io.connect('http://localhost:8080');
+            var i, d, idBin, limit = 50, idBin = [];
             for (i = 0, d = arr.length; i < d; i += limit) {
-                idBin = arr.slice(i, i + limit);
-             //   console.log(idBin);
-            }
+                ids = arr.slice(i, i + limit);
+                //   console.log(idBin);
+                socket.emit('artistIds', { artistIds: ids });
+                socket.on('artistSoundPrintProfiles', function (data) {
+                   var artistProfile = data.profile;
+                   for (var i = 0; i < artistProfile.length; i++) {
+                       var name = artistProfile.name;
+                       console.log(name);
+
+                   }
+                })
+            };
         }
         function hipsterFunction(score) {
             console.log(score);
             var hipsterStatus = 0;
-             hipsterStatus = (100 - score);
+            hipsterStatus = (100 - score);
             toastr.info('Chances are ' + hipsterStatus + '% you are a  hipster');
         }
+
+
     });
 });
