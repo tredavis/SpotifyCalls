@@ -58,21 +58,6 @@
             $('#savedTrackList').hide();
 
         }
-
-        //document.getElementById('obtain-new-token').addEventListener('click', function () {
-        //    $.ajax({
-        //        url: '/refresh_token',
-        //        data: {
-        //            'refresh_token': refresh_token
-        //        }
-        //    }).done(function (data) {
-        //        access_token = data.access_token;
-        //        oauthPlaceholder.innerHTML = oauthTemplate({
-        //            access_token: access_token,
-        //            refresh_token: refresh_token
-        //        });
-        //    });
-        //}, false);
     }
 })();
 
@@ -100,6 +85,12 @@ $(function () {
         "showMethod": "fadeIn",
         "hideMethod": "fadeOut"
     }
+    $("#deleteSongs").click(function () {
+        var socket = io.connect('http://localhost:8080');
+        userName = document.getElementById('userName').value;
+        socket.emit('clearDb', { action: userName });
+        $(this).prop("disabled", true);
+    });
 
     $("#userName").change(function () {
         (function loadTracks() {
@@ -111,11 +102,11 @@ $(function () {
             userName = document.getElementById('userName').value;
             var name = capitalizeFirstLetter(userName);
             if (userName != 'null') {
-                socket.emit('user', { userName: userName });                
+                socket.emit('user', { userName: userName });
                 socket.on('tracks', function (data) {
                     if (data) {
                         (function populateData() {
-                        //    console.log(data); //Sam and Tyler
+                            //    console.log(data); //Sam and Tyler
                             var artistId;
                             var songPop = [];
                             var trackArtistIdArray = [];
@@ -123,7 +114,7 @@ $(function () {
                             var h = '<h2 id="greenBanner"> Showing Tracks from ' + name + "'s database </h2>";
                             var trackArray = data.tracks;
                             for (var i = 0; i < trackArray.length; i++) {
-                                var song = trackArray[i];                                var num = i + 1;
+                                var song = trackArray[i]; var num = i + 1;
                                 //If tyler or sam selected. The values will equal something different
                                 if (userName == 'sam' || userName == 'tyler') {
                                     console.log(song);
@@ -206,31 +197,77 @@ $(function () {
             });
             return createArtistForCall(parsedIds);
         }
+        function removeDuplicates2(array) {
+            var parsedIds = [];
+            $.each(array, function (i, el) {
+                if ($.inArray(el, parsedIds) === -1) parsedIds.push(el);
+            });
+            console.log(parsedIds);
+        }
         function createArtistForCall(arr) {
             var artistProfileArray = [];
+            var userRapGenreContainer = [];
+            var userIndieGenreContainer = [];
+            var userTechnoGenreContainer = [];
+            var userPopGenreContainer = [];
+            var userOldiesGenreContainer = [];
+            var userGenreScore = { rap: 0, indie: 0, techno: 0, pop: 0, oldies: 0 };
             var socket = io.connect('http://localhost:8080');
             var i, d, idBin, limit = 50, idBin = [];
             for (i = 0, d = arr.length; i < d; i += limit) {
                 ids = arr.slice(i, i + limit);
-                //   console.log(idBin);
                 socket.emit('artistIds', { artistIds: ids });
+                var h = '';
                 socket.on('artistSoundPrintProfiles', function (data) {
-                   var artistProfile = data.profile;
-                   for (var i = 0; i < artistProfile.length; i++) {
-                       var name = artistProfile.name;
-                       console.log(name);
+                    var artist = data.profile;
+                    var genre = artist.genre;
+                    var name = data.profile.name;
+                    h += '<div>' + 'Artist Name is  ' + genre + '  ' + '</div>'
+                    //    document.getElementById('artistOutput').innerHTML = h;
+                    if (genre == undefined) {
+                   //     console.log( name +' has not had a genre given to him yet');
+                    }
+                    else if ((genre.includes('rap')) || (genre.includes('hip'))) {
+                        userRapGenreContainer.push(genre);
+                        userGenreScore.rap += (1 / 4);
+                    }
+                    else if (genre.includes('indie') || (genre.includes('wave')) || (genre.includes('wonky'))) {
+                        userIndieGenreContainer.push(genre);
+                        userGenreScore.indie += .25;
+                    }
+                    else if (genre.includes('elect') || (genre.includes('house')) || (genre.includes('edm')) || (genre.includes('dance')) || (genre.includes('tro'))) {
+                        userTechnoGenreContainer.push(genre);
+                        userGenreScore.techno += .25;
+                    }
+                    else if (genre.includes('pop')){
+                        userPopGenreContainer.push(genre);
+                        userGenreScore.pop += .25;
+                    }
+                    else if ((genre.includes('soul')) || (genre.includes('disco'))){
+                        userOldiesGenreContainer.push(genre);
+                        userGenreScore.oldies += .25     ;
 
-                   }
-                })
+                    }                   
+                    else {
+                       console.log(genre);
+                    }
+                    console.log(userGenreScore);
+                });
             };
         }
         function hipsterFunction(score) {
-            console.log(score);
             var hipsterStatus = 0;
             hipsterStatus = (100 - score);
             toastr.info('Chances are ' + hipsterStatus + '% you are a  hipster');
         }
 
+        function displayArtist(data) {
+            if (data) {
 
+            }
+            else {
+                toastr.danger('Error Error!');
+            }
+        }
     });
 });
