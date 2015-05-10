@@ -180,7 +180,6 @@ $(function () {
                 console.log('there is no user selected');
             }
         })();
-
         function average(arr) {
             var total = 0;
             var avg;
@@ -197,15 +196,10 @@ $(function () {
             });
             return createArtistForCall(parsedIds);
         }
-        function removeDuplicates2(array) {
-            var parsedIds = [];
-            $.each(array, function (i, el) {
-                if ($.inArray(el, parsedIds) === -1) parsedIds.push(el);
-            });
-            console.log(parsedIds);
-        }
         function createArtistForCall(arr) {
-            var artistProfileArray = [], userRapGenreContainer = [], userIndieGenreContainer = [], userTechnoGenreContainer = [], userPopGenreContainer = [], userOldiesGenreContainer = [], userUnknownGenreContainer = [];
+            var artistProfileArray = [], userRapGenreContainer = [], userIndieGenreContainer = [],
+                userTechnoGenreContainer = [], userPopGenreContainer = [], userOldiesGenreContainer = [],
+                userUnknownGenreContainer = [];
             var userGenreScore = { rap: 0, indie: 0, techno: 0, pop: 0, oldies: 0, unknown: 0 }
             var socket = io.connect('http://localhost:8080');
             var i, d, idBin, limit = 50, idBin = [];
@@ -226,7 +220,7 @@ $(function () {
                     userUnknownGenreContainer.push(genre);
                     userGenreScore.unknown += 1;
                 }
-                else if ((genre.includes('rap')) || (genre.includes('hip'))) {
+                else if ((genre.includes('rap')) || (genre.includes('hip')) || (genre.includes('crunk'))) {
                     userRapGenreContainer.push(genre);
                     userGenreScore.rap += 1;
                 }
@@ -251,7 +245,16 @@ $(function () {
                 }
                 console.log(userGenreScore);
             });
-            //    var close = socket.emit('done', { end: end });
+
+            (function closeConnection() {
+                setInterval(function() {
+                    socket.emit('done', { end: 'end' });
+                }, 500);
+            })();
+        }
+
+        function userScore() {
+            
         }
         function hipsterFunction(score) {
             var hipsterStatus = 0;
