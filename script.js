@@ -205,69 +205,58 @@ $(function () {
             console.log(parsedIds);
         }
         function createArtistForCall(arr) {
-            var artistProfileArray = [];
-            var userRapGenreContainer = [];
-            var userIndieGenreContainer = [];
-            var userTechnoGenreContainer = [];
-            var userPopGenreContainer = [];
-            var userOldiesGenreContainer = [];
-            var userGenreScore = { rap: 0, indie: 0, techno: 0, pop: 0, oldies: 0 };
+            var artistProfileArray = [], userRapGenreContainer = [], userIndieGenreContainer = [], userTechnoGenreContainer = [], userPopGenreContainer = [], userOldiesGenreContainer = [], userUnknownGenreContainer = [];
+            var userGenreScore = { rap: 0, indie: 0, techno: 0, pop: 0, oldies: 0, unknown: 0 }
             var socket = io.connect('http://localhost:8080');
             var i, d, idBin, limit = 50, idBin = [];
             for (i = 0, d = arr.length; i < d; i += limit) {
                 ids = arr.slice(i, i + limit);
                 socket.emit('artistIds', { artistIds: ids });
-                var h = '';
-                socket.on('artistSoundPrintProfiles', function (data) {
-                    var artist = data.profile;
-                    var genre = artist.genre;
-                    var name = data.profile.name;
-                    h += '<div>' + 'Artist Name is  ' + genre + '  ' + '</div>'
-                    //    document.getElementById('artistOutput').innerHTML = h;
-                    if (genre == undefined) {
-                   //     console.log( name +' has not had a genre given to him yet');
-                    }
-                    else if ((genre.includes('rap')) || (genre.includes('hip'))) {
-                        userRapGenreContainer.push(genre);
-                        userGenreScore.rap += (1 / 4);
-                    }
-                    else if (genre.includes('indie') || (genre.includes('wave')) || (genre.includes('wonky'))) {
-                        userIndieGenreContainer.push(genre);
-                        userGenreScore.indie += .25;
-                    }
-                    else if (genre.includes('elect') || (genre.includes('house')) || (genre.includes('edm')) || (genre.includes('dance')) || (genre.includes('tro'))) {
-                        userTechnoGenreContainer.push(genre);
-                        userGenreScore.techno += .25;
-                    }
-                    else if (genre.includes('pop')){
-                        userPopGenreContainer.push(genre);
-                        userGenreScore.pop += .25;
-                    }
-                    else if ((genre.includes('soul')) || (genre.includes('disco'))){
-                        userOldiesGenreContainer.push(genre);
-                        userGenreScore.oldies += .25     ;
-
-                    }                   
-                    else {
-                       console.log(genre);
-                    }
-                    console.log(userGenreScore);
-                });
             };
+            var h = '';
+            socket.on('artistSoundPrintProfiles', function (data) {
+                var artist = data.profile;
+                var genre = artist.genre;
+                var name = data.profile.name;
+                var pop = artist.hipsterStatus;
+                h += '<div>' + 'Artist Name is  ' + genre + '  ' + '</div>'
+                //    document.getElementById('artistOutput').innerHTML = h;
+                if (genre == undefined) {
+                    //     console.log( name +' has not had a genre given to him yet');
+                    userUnknownGenreContainer.push(genre);
+                    userGenreScore.unknown += 1;
+                }
+                else if ((genre.includes('rap')) || (genre.includes('hip'))) {
+                    userRapGenreContainer.push(genre);
+                    userGenreScore.rap += 1;
+                }
+                else if (genre.includes('indie') || (genre.includes('wave')) || (genre.includes('wonky'))) {
+                    userIndieGenreContainer.push(genre);
+                    userGenreScore.indie += 1;
+                }
+                else if (genre.includes('elect') || (genre.includes('house')) || (genre.includes('edm')) || (genre.includes('dance')) || (genre.includes('tro'))) {
+                    userTechnoGenreContainer.push(genre);
+                    userGenreScore.techno += 1;
+                }
+                else if (genre.includes('pop')) {
+                    userPopGenreContainer.push(genre);
+                    userGenreScore.pop += 1;
+                }
+                else if ((genre.includes('soul')) || (genre.includes('disco'))) {
+                    userOldiesGenreContainer.push(genre);
+                    userGenreScore.oldies += 1;
+                }
+                else {
+                    console.log(genre);
+                }
+                console.log(userGenreScore);
+            });
+            //    var close = socket.emit('done', { end: end });
         }
         function hipsterFunction(score) {
             var hipsterStatus = 0;
             hipsterStatus = (100 - score);
             toastr.info('Chances are ' + hipsterStatus + '% you are a  hipster');
-        }
-
-        function displayArtist(data) {
-            if (data) {
-
-            }
-            else {
-                toastr.danger('Error Error!');
-            }
         }
     });
 });
