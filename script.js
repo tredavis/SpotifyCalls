@@ -116,8 +116,7 @@ $(function () {
                             for (var i = 0; i < trackArray.length; i++) {
                                 var song = trackArray[i]; var num = i + 1;
                                 //If tyler or sam selected. The values will equal something different
-                                if (userName == 'sam' || userName == 'tyler') {
-                                    console.log(song);
+                                if (name == 'Sam' || name == 'Tyler') {
                                     var trackArtist = song.name;
                                     var numArtist = trackArray[i].name.length;
                                     var songName = song.track;
@@ -172,8 +171,6 @@ $(function () {
                     else {
                         //    populateData();
                     }
-
-
                 });
             }
             else {
