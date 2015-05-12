@@ -1,8 +1,4 @@
-(function () {
-    /**
-     * Obtains parameters from the hash of the URL
-     * @return Object
-     */
+$(function () {
     function getHashParams() {
         var hashParams = {};
         var e, r = /([^&;=]+)=?([^&;]*)/g,
@@ -13,29 +9,21 @@
         return hashParams;
     }
 
-    var userProfileSource = document.getElementById('user-profile-template').innerHTML,
-        userProfileTemplate = Handlebars.compile(userProfileSource),
-        userProfilePlaceholder = document.getElementById('user-profile');
+        var params = getHashParams();
 
-    var oauthSource = document.getElementById('oauth-template').innerHTML,
-        oauthTemplate = Handlebars.compile(oauthSource),
-        oauthPlaceholder = document.getElementById('oauth');
-
-    var params = getHashParams();
-
-    var access_token = params.access_token,
-        refresh_token = params.refresh_token,
-        error = params.error;
+        var access_token = params.access_token,
+            refresh_token = params.refresh_token,
+            error = params.error;
 
     if (error) {
         alert('There was an error during the authentication');
     } else {
         if (access_token) {
             // render oauth info
-            oauthPlaceholder.innerHTML = oauthTemplate({
-                access_token: access_token,
-                refresh_token: refresh_token
-            });
+            //oauthPlaceholder.innerHTML = oauthTemplate({
+            //    access_token: access_token,
+            //    refresh_token: refresh_token
+            //});
 
             $.ajax({
                 url: 'https://api.spotify.com/v1/me',
@@ -43,7 +31,7 @@
                     'Authorization': 'Bearer ' + access_token
                 },
                 success: function (response) {
-                    userProfilePlaceholder.innerHTML = userProfileTemplate(response);
+                    //   userProfilePlaceholder.innerHTML = userProfileTemplate(response);
 
                     $('#login').hide();
                     $('#loggedin').show();
@@ -59,11 +47,7 @@
 
         }
     }
-})();
 
-
-
-$(function () {
     function capitalizeFirstLetter(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
     }
@@ -206,7 +190,10 @@ $(function () {
             };
             var h = '';
             socket.on('artistSoundPrintProfiles', function (data) {
+                
                 var artist = data.profile;
+                var id = artist.id;
+                console.log(id);
                 var genre = artist.genre;
                 var name = data.profile.name;
                 var pop = artist.hipsterStatus;
@@ -242,21 +229,18 @@ $(function () {
                 }
                 console.log(userGenreScore);
             });
-
-            (function closeConnection() {
-                setInterval(function() {
-                    socket.emit('done', { end: 'end' });
-                }, 500);
-            })();
-        }
-
-        function userScore() {
-            
+         
         }
         function hipsterFunction(score) {
             var hipsterStatus = 0;
             hipsterStatus = (100 - score);
             toastr.info('Chances are ' + hipsterStatus + '% you are a  hipster');
         }
+    });
+    $('#echo').click(function echoNest() {
+        console.log('jlfajfd');
+        var socket = io.connect('http://localhost:8080');
+        var echo = 'send';
+        socket.emit('echo', { echo: echo })
     });
 });
