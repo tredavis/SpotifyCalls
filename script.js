@@ -193,7 +193,6 @@ $(function () {
                 
                 var artist = data.profile;
                 var id = artist.id;
-                console.log(id);
                 var genre = artist.genre;
                 var name = data.profile.name;
                 var pop = artist.hipsterStatus;
@@ -227,6 +226,7 @@ $(function () {
                 else {
                     console.log(genre);
                 }
+                hipsterFunction2(userGenreScore);
             });
          
         }
@@ -234,6 +234,17 @@ $(function () {
             var hipsterStatus = 0;
             hipsterStatus = (100 - score);
             toastr.info('Chances are ' + hipsterStatus + '% you are a  hipster');
+        }
+        function hipsterFunction2(score) {
+            var totalScore = score.pop + score.rap + score.indie + score.techno + score.oldies;
+           // console.log(totalScore);
+            var rapScore = Math.round((score.rap / totalScore) * 100);
+            var indieScore = Math.round((score.indie / totalScore) * 100);
+            var technoScore = Math.round((score.techno / totalScore) * 100);
+            var oldiesScore = Math.round((score.oldies / totalScore) * 100);
+            var popScore = Math.round((score.pop / totalScore) * 100);
+            console.log(" Rap: " + rapScore +"%   Indie: " + indieScore + "%   Techno/House: " +  technoScore + "%   Oldies: " + oldiesScore+ "%  Pop: " + popScore +"%  ")
+
         }
     });
 
