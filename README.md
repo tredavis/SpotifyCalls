@@ -1,4 +1,5 @@
 # SpotifyCalls
+Basically the same application as my other repo "Soundprint" -.NET. Using Node.js instead. 
 Basic app that uses Node.js and Express to make calls to Spotify and pull down the Authenticated ALL users saved tracks.
 
 In the effort not to display my secret keys. The server side script is unavailable to view. However, I will briefly explain. 
