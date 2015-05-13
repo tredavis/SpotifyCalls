@@ -227,7 +227,6 @@ $(function () {
                 else {
                     console.log(genre);
                 }
-                console.log(userGenreScore);
             });
          
         }
@@ -237,10 +236,17 @@ $(function () {
             toastr.info('Chances are ' + hipsterStatus + '% you are a  hipster');
         }
     });
+
+    // Two things, EchoNest Connection Test and Socket.io ReadableStreams Test. Need to read more documentation
     $('#echo').click(function echoNest() {
-        console.log('jlfajfd');
-        var socket = io.connect('http://localhost:8080');
-        var echo = 'send';
-        socket.emit('echo', { echo: echo })
+
+        //console.log('jlfajfd');
+        //var ss = require('socket.io-stream');
+        //var socket = io.connect('http://localhost:8080');
+        //var stream = ss.createStream();
+        //ss(socket).emit('foo', stream);
+        //fs.createReadStream(data).pipe(stream);
+        //var echo = 'send';
+        //socket.emit('echo', { echo: echo })
     });
 });
