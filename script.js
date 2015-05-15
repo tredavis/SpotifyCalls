@@ -143,7 +143,7 @@ $(function () {
                             }
                             //  console.log(songPop);
                             toastr.success('There are ' + trackArray.length + ' songs saved for ' + name + compareTracksButton);
-                            document.getElementById('trackOutput').innerHTML = h;
+                     //       document.getElementById('trackOutput').innerHTML = h;
                             removeDuplicates(trackArtistIdArray);
                             return average(songPop);
                         })();
@@ -243,7 +243,8 @@ $(function () {
             var technoScore = Math.round((score.techno / totalScore) * 100);
             var oldiesScore = Math.round((score.oldies / totalScore) * 100);
             var popScore = Math.round((score.pop / totalScore) * 100);
-            console.log(" Rap: " + rapScore +"%   Indie: " + indieScore + "%   Techno/House: " +  technoScore + "%   Oldies: " + oldiesScore+ "%  Pop: " + popScore +"%  ")
+            console.log(" Rap: " + rapScore + "%   Indie: " + indieScore + "%   Techno/House: " + technoScore + "%   Oldies: " + oldiesScore + "%  Pop: " + popScore + "%  ");
+            document.write(" Rap: " + rapScore + "%   Indie: " + indieScore + "%   Techno/House: " + technoScore + "%   Oldies: " + oldiesScore + "%  Pop: " + popScore + "%  ");
 
         }
     });
