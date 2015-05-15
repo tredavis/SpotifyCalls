@@ -1,7 +1,10 @@
-$(function () {
+$(function() {
+    var socket = io.connect('http://localhost:8080');
+
     function getHashParams() {
         var hashParams = {};
-        var e, r = /([^&;=]+)=?([^&;]*)/g,
+        var e,
+            r = /([^&;=]+)=?([^&;]*)/g,
             q = window.location.hash.substring(1);
         while (e = r.exec(q)) {
             hashParams[e[1]] = decodeURIComponent(e[2]);
@@ -9,11 +12,11 @@ $(function () {
         return hashParams;
     }
 
-        var params = getHashParams();
+    var params = getHashParams();
 
-        var access_token = params.access_token,
-            refresh_token = params.refresh_token,
-            error = params.error;
+    var access_token = params.access_token,
+        refresh_token = params.refresh_token,
+        error = params.error;
 
     if (error) {
         alert('There was an error during the authentication');
@@ -30,7 +33,7 @@ $(function () {
                 headers: {
                     'Authorization': 'Bearer ' + access_token
                 },
-                success: function (response) {
+                success: function(response) {
                     //   userProfilePlaceholder.innerHTML = userProfileTemplate(response);
 
                     $('#login').hide();
@@ -38,8 +41,7 @@ $(function () {
                     $('#savedTrackList').show();
                 }
             });
-        }
-        else {
+        } else {
             // render initial screen
             $('#login').show();
             $('#loggedin').hide();
@@ -51,7 +53,8 @@ $(function () {
     function capitalizeFirstLetter(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
     }
-    //Makes changes to the toastr button
+
+//Makes changes to the toastr button
     toastr.options = {
         "closeButton": false,
         "debug": false,
@@ -69,14 +72,14 @@ $(function () {
         "showMethod": "fadeIn",
         "hideMethod": "fadeOut"
     }
-    $("#deleteSongs").click(function () {
+    $("#deleteSongs").click(function() {
         var socket = io.connect('http://localhost:8080');
         userName = document.getElementById('userName').value;
         socket.emit('clearDb', { action: userName });
         $(this).prop("disabled", true);
     });
 
-    $("#userName").change(function () {
+    $("#userName").change(function() {
         (function loadTracks() {
             //variable that stores the a button
             var compareTracksButton = '<br > <button id="test" class="btn btn-info"> Compare Tracks </button>';
@@ -87,7 +90,7 @@ $(function () {
             var name = capitalizeFirstLetter(userName);
             if (userName != 'null') {
                 socket.emit('user', { userName: userName });
-                socket.on('tracks', function (data) {
+                socket.on('tracks', function(data) {
                     if (data) {
                         (function populateData() {
                             //    console.log(data); //Sam and Tyler
@@ -98,7 +101,8 @@ $(function () {
                             var h = '<h2 id="greenBanner"> Showing Tracks from ' + name + "'s database </h2>";
                             var trackArray = data.tracks;
                             for (var i = 0; i < trackArray.length; i++) {
-                                var song = trackArray[i]; var num = i + 1;
+                                var song = trackArray[i];
+                                var num = i + 1;
                                 //If tyler or sam selected. The values will equal something different
                                 if (name == 'Sam' || name == 'Tyler') {
                                     var trackArtist = song.name;
@@ -116,16 +120,14 @@ $(function () {
                                         artistId = trackArtist[x].id;
                                         artistName = trackArtist[x].name;
                                         trackArtistIdArray.push(artistId);
-                                    }
-                                    else if (artistCount === 2) {
+                                    } else if (artistCount === 2) {
                                         art1Id = trackArtist[0].id;
                                         art2Id = trackArtist[1].id;
                                         art1 = trackArtist[0].name;
                                         art2 = trackArtist[1].name;
                                         artistId = trackArtist[x].id;
                                         trackArtistIdArray.push(art1Id, art2Id);
-                                    }
-                                    else if (artistCount >= 2) {
+                                    } else if (artistCount >= 2) {
                                         art1Id = trackArtist[0].id;
                                         art2Id = trackArtist[1].id;
                                         art3Id = trackArtist[2].id;
@@ -137,64 +139,68 @@ $(function () {
                                     }
                                 }
                                 songPop.push(song.popularity);
-                                if (numArtist === 1) { h += '<div>' + num + '.  ' + songName + ' By:  ' + artistName + preview + '</div>'; }
-                                else if (numArtist === 2) { h += '<div>' + num + '.  ' + songName + ' By:  ' + art1 + ' ft. ' + art2 + preview + '</div>'; }
-                                else { h += '<div>' + num + '.  ' + songName + ' By:  ' + art1 + ' ft. ' + art2 + ' and ' + art3 + preview + '</div>'; }
+                                if (numArtist === 1) {
+                                    h += '<div>' + num + '.  ' + songName + ' By:  ' + artistName + preview + '</div>';
+                                } else if (numArtist === 2) {
+                                    h += '<div>' + num + '.  ' + songName + ' By:  ' + art1 + ' ft. ' + art2 + preview + '</div>';
+                                } else {
+                                    h += '<div>' + num + '.  ' + songName + ' By:  ' + art1 + ' ft. ' + art2 + ' and ' + art3 + preview + '</div>';
+                                }
                             }
                             //  console.log(songPop);
                             toastr.success('There are ' + trackArray.length + ' songs saved for ' + name + compareTracksButton);
-                     //       document.getElementById('trackOutput').innerHTML = h;
+                            //       document.getElementById('trackOutput').innerHTML = h;
                             removeDuplicates(trackArtistIdArray);
                             return average(songPop);
                         })();
                     }
-                        //if (!data) {
-                        //    console.log('Waiting for data to load');
-                        //    setInterval(function () { populateData() }, 1000);
-                        // } 
+                    //if (!data) {
+                    //    console.log('Waiting for data to load');
+                    //    setInterval(function () { populateData() }, 1000);
+                    // } 
                     else {
                         //    populateData();
                     }
                 });
-            }
-            else {
+            } else {
                 console.log('there is no user selected');
             }
         })();
+
         function average(arr) {
             var total = 0;
             var avg;
-            $.each(arr, function () {
+            $.each(arr, function() {
                 total += this;
                 avg = (Math.round(total / arr.length));
             });
             return hipsterFunction(avg)
         };
+
+        socket.on('ids', function(data) {
+            //   console.log(data);
+            removeDuplicates(data.ids);
+        })
+
         function removeDuplicates(array) {
             var parsedIds = [];
-            $.each(array, function (i, el) {
+            $.each(array, function(i, el) {
                 if ($.inArray(el, parsedIds) === -1) parsedIds.push(el);
             });
-            return createArtistForCall(parsedIds);
+            //    console.log(parsedIds)
+            socket.emit('parsedIds', { parsedIds: parsedIds });
+            //   return createArtistForCall(parsedIds);
         }
+
         function createArtistForCall(arr) {
-            var artistProfileArray = [], userRapGenreContainer = [], userIndieGenreContainer = [],
-                userTechnoGenreContainer = [], userPopGenreContainer = [], userOldiesGenreContainer = [],
-                userUnknownGenreContainer = [];
-            var userGenreScore = { rap: 0, indie: 0, techno: 0, pop: 0, oldies: 0, unknown: 0 }
             var socket = io.connect('http://localhost:8080');
-            var i, d, idBin, limit = 50, idBin = [];
-            for (i = 0, d = arr.length; i < d; i += limit) {
-                ids = arr.slice(i, i + limit);
-                socket.emit('artistIds', { artistIds: ids });
-            };
             var h = '';
-            socket.on('artistSoundPrintProfiles', function (data) {
-                
-                var artist = data.profile;
+            socket.on('artistSoundPrintProfiles', function(data) {
+                console.log(data);
+                var artist = data.profiles;
                 var id = artist.id;
                 var genre = artist.genre;
-                var name = data.profile.name;
+                var name = data.profiles.name;
                 var pop = artist.hipsterStatus;
                 h += '<div>' + 'Artist Name is  ' + genre + '  ' + '</div>'
                 //    document.getElementById('artistOutput').innerHTML = h;
@@ -202,49 +208,90 @@ $(function () {
                     //     console.log( name +' has not had a genre given to him yet');
                     userUnknownGenreContainer.push(genre);
                     userGenreScore.unknown += 1;
-                }
-                else if ((genre.includes('rap')) || (genre.includes('hip')) || (genre.includes('crunk'))) {
+                } else if ((genre.includes('rap')) || (genre.includes('hip')) || (genre.includes('crunk'))) {
                     userRapGenreContainer.push(genre);
                     userGenreScore.rap += 1;
-                }
-                else if (genre.includes('indie') || (genre.includes('wave')) || (genre.includes('wonky'))) {
+                } else if (genre.includes('indie') || (genre.includes('wave')) || (genre.includes('wonky'))) {
                     userIndieGenreContainer.push(genre);
                     userGenreScore.indie += 1;
-                }
-                else if (genre.includes('elect') || (genre.includes('house')) || (genre.includes('edm')) || (genre.includes('dance')) || (genre.includes('tro'))) {
+                } else if (genre.includes('elect') || (genre.includes('house')) || (genre.includes('edm')) || (genre.includes('dance')) || (genre.includes('tro'))) {
                     userTechnoGenreContainer.push(genre);
                     userGenreScore.techno += 1;
-                }
-                else if (genre.includes('pop')) {
+                } else if (genre.includes('pop')) {
                     userPopGenreContainer.push(genre);
                     userGenreScore.pop += 1;
-                }
-                else if ((genre.includes('soul')) || (genre.includes('disco'))) {
+                } else if ((genre.includes('soul')) || (genre.includes('disco'))) {
                     userOldiesGenreContainer.push(genre);
                     userGenreScore.oldies += 1;
-                }
-                else {
+                } else {
                     console.log(genre);
                 }
                 hipsterFunction2(userGenreScore);
             });
-         
+
         }
+
         function hipsterFunction(score) {
             var hipsterStatus = 0;
             hipsterStatus = (100 - score);
             toastr.info('Chances are ' + hipsterStatus + '% you are a  hipster');
         }
+
+    });
+
+    socket.on('artistSoundPrintProfiles', function (data) {
+        var h = ' ';
+        var artistProfileArray = [],
+            userRapGenreContainer = [],
+            userIndieGenreContainer = [],
+            userTechnoGenreContainer = [],
+            userPopGenreContainer = [],
+            userOldiesGenreContainer = [],
+            userUnknownGenreContainer = [];
+        var userGenreScore = { rap: 0, indie: 0, techno: 0, pop: 0, oldies: 0, unknown: 0 }
+        console.log(data.profiles);
+        var artist = data.profiles;
+        var id = artist.id;
+        var genre = artist.genre;
+        var name = data.profiles.name;
+        var pop = artist.hipsterStatus;
+        h += '<div>' + 'Artist Name is  ' + genre + '  ' + '</div>'
+        //    document.getElementById('artistOutput').innerHTML = h;
+        if (genre == undefined) {
+            //     console.log( name +' has not had a genre given to him yet');
+            userUnknownGenreContainer.push(genre);
+            userGenreScore.unknown += 1;
+        } else if ((genre.includes('rap')) || (genre.includes('hip')) || (genre.includes('crunk'))) {
+            userRapGenreContainer.push(genre);
+            userGenreScore.rap += 1;
+        } else if (genre.includes('indie') || (genre.includes('wave')) || (genre.includes('wonky'))) {
+            userIndieGenreContainer.push(genre);
+            userGenreScore.indie += 1;
+        } else if (genre.includes('elect') || (genre.includes('house')) || (genre.includes('edm')) || (genre.includes('dance')) || (genre.includes('tro'))) {
+            userTechnoGenreContainer.push(genre);
+            userGenreScore.techno += 1;
+        } else if (genre.includes('pop')) {
+            userPopGenreContainer.push(genre);
+            userGenreScore.pop += 1;
+        } else if ((genre.includes('soul')) || (genre.includes('disco'))) {
+            userOldiesGenreContainer.push(genre);
+            userGenreScore.oldies += 1;
+        } else {
+            console.log(genre);
+        }
+        hipsterFunction2(userGenreScore);
+
+
         function hipsterFunction2(score) {
             var totalScore = score.pop + score.rap + score.indie + score.techno + score.oldies;
-           // console.log(totalScore);
+            // console.log(totalScore);
             var rapScore = Math.round((score.rap / totalScore) * 100);
             var indieScore = Math.round((score.indie / totalScore) * 100);
             var technoScore = Math.round((score.techno / totalScore) * 100);
             var oldiesScore = Math.round((score.oldies / totalScore) * 100);
             var popScore = Math.round((score.pop / totalScore) * 100);
             console.log(" Rap: " + rapScore + "%   Indie: " + indieScore + "%   Techno/House: " + technoScore + "%   Oldies: " + oldiesScore + "%  Pop: " + popScore + "%  ");
-            document.write(" Rap: " + rapScore + "%   Indie: " + indieScore + "%   Techno/House: " + technoScore + "%   Oldies: " + oldiesScore + "%  Pop: " + popScore + "%  ");
+           
 
         }
     });
