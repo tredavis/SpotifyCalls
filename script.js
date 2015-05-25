@@ -301,11 +301,15 @@ $(function() {
 
         //console.log('jlfajfd');
         //var ss = require('socket.io-stream');
-        //var socket = io.connect('http://localhost:8080');
+        var socket = io.connect('http://localhost:8080');
         //var stream = ss.createStream();
         //ss(socket).emit('foo', stream);
         //fs.createReadStream(data).pipe(stream);
-        //var echo = 'send';
-        //socket.emit('echo', { echo: echo })
+        var echo = 'send';
+        socket.emit('echo', { echo: echo })
+        
     });
+    socket.on('fm', function(data) {
+        console.log(data);
+    })
 });
