@@ -142,13 +142,13 @@ $(function () {
 
     function hipsterFunction2(score) {
         var totalScore = score.pop + score.rap + score.indie + score.techno + score.oldies;
-        //        console.log(totalScore);
+                console.log(totalScore);
         var rapScore = Math.round((score.rap / totalScore) * 100);
         var indieScore = Math.round((score.indie / totalScore) * 100);
         var technoScore = Math.round((score.techno / totalScore) * 100);
         var oldiesScore = Math.round((score.oldies / totalScore) * 100);
         var popScore = Math.round((score.pop / totalScore) * 100);
-     //   console.log(" Rap: " + rapScore + "%   Indie: " + indieScore + "%   Techno/House: " + technoScore + "%   Oldies: " + oldiesScore + "%  Pop: " + popScore + "%  ");
+      console.log(" Rap: " + rapScore + "%   Indie: " + indieScore + "%   Techno/House: " + technoScore + "%   Oldies: " + oldiesScore + "%  Pop: " + popScore + "%  ");
     }
 
     socket.on('artistSoundPrintProfiles', function (data) {
@@ -184,7 +184,7 @@ $(function () {
             console.log(genre);
         }
         hipsterFunction2(userGenreScore);
-     //   console.log(userGenreScore);
+        console.log(userGenreScore);
         
     });
 
@@ -277,7 +277,7 @@ $(function () {
                 total += this;
                 avg = (Math.round(total / arr.length));
             });
-            return hipsterFunction(avg)
+            return hipsterFunction2(avg)
         };
 
         socket.on('ids', function(data) {
