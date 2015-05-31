@@ -1,5 +1,5 @@
 <!doctype html>
-<html ng-app="soundPrintApp">
+<html>
 <head>
     <title>Example of the Authorization Code flow with Spotify</title>
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
@@ -15,6 +15,8 @@
             <a href="/login" class="btn btn-primary">Log in with Spotify</a>
         </div>
         <div class="col-sm-12" id="loggedin">
+            <a href="/last_data" class="btn btn-danger">Log in with Last.FM</a>
+            
             <div id="user-profile">
             </div>
             <div id="oauth">
@@ -40,10 +42,10 @@
 
         </div>
 
-        <!--<div id="trackOutputDiv" style="font-size: 18px">
+        <div id="trackOutputDiv" style="font-size: 18px">
             <div id="trackOutput">
             </div>
-        </div>-->
+        </div>
         <div id="scoreOutput">
 
         </div>
@@ -99,9 +101,7 @@
 
         <script src="https://cdn.socket.io/socket.io-1.3.4.js"></script>        
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
         <script src="script.js"></script>
-        <script src="homecontroller.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 </html>

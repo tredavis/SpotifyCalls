@@ -1,60 +1,110 @@
-$(function() {
+$(function () {
     var socket = io.connect('http://localhost:8080');
-
-    function getHashParams() {
-        var hashParams = {};
-        var e,
-            r = /([^&;=]+)=?([^&;]*)/g,
-            q = window.location.hash.substring(1);
-        while (e = r.exec(q)) {
-            hashParams[e[1]] = decodeURIComponent(e[2]);
+    //LastFm Query String
+    if (window.location.search && window.location.search.includes('?token')) {
+        console.log('?token');
+        function getLastFMHashParams() {
+            var a = window.location.search.substring(1);
+            var hashParams = {};
+            var e,
+                r = /([^&;=]+)=?([^&;]*)/g,
+                a = window.location.search.substring(1);
+            while (e = r.exec(a)) {
+                hashParams[e[1]] = decodeURIComponent(e[2]);
+            }
+            return hashParams;
         }
-        return hashParams;
+        var params = getLastFMHashParams();
+        return CurrentUserLastFm(params);
+    }
+        // Spotify Query String
+    else {
+        function getSpotifyHashParams() {
+            var hashParams = {};
+            var e,
+                r = /([^&;=]+)=?([^&;]*)/g,
+                q = window.location.hash.substring(1);
+            while (e = r.exec(q)) {
+                hashParams[e[1]] = decodeURIComponent(e[2]);
+            }
+            return hashParams;
+        }
+        var params = getSpotifyHashParams();
+        return CurrentUserSpotify(params);
     }
 
-    var params = getHashParams();
+    function CurrentUserLastFm(params) {
+        var token = params.token;
+        console.log('emitted the token: ' + token)
+        return socket.emit('LastFmToken', { token: token }, function (error, message) {
+            console.log(message)
+        })
+        console.log('data');
+    }
 
-    var access_token = params.access_token,
-        refresh_token = params.refresh_token,
-        error = params.error;
-
-    if (error) {
-        alert('There was an error during the authentication');
-    } else {
-        if (access_token) {
-            // render oauth info
-            //oauthPlaceholder.innerHTML = oauthTemplate({
-            //    access_token: access_token,
-            //    refresh_token: refresh_token
-            //});
-
-            $.ajax({
-                url: 'https://api.spotify.com/v1/me',
-                headers: {
-                    'Authorization': 'Bearer ' + access_token
-                },
-                success: function(response) {
-                    //   userProfilePlaceholder.innerHTML = userProfileTemplate(response);
-
-                    $('#login').hide();
-                    $('#loggedin').show();
-                    $('#savedTrackList').show();
-                }
-            });
+    function CurrentUserSpotify(params) {
+        var access_token = params.access_token,
+       refresh_token = params.refresh_token,
+       error = params.error;
+        if (error) {
+            alert('There was an error during the authentication');
         } else {
-            // render initial screen
-            $('#login').show();
-            $('#loggedin').hide();
-            $('#savedTrackList').hide();
+            if (access_token) {
+                $.ajax({
+                    url: 'https://api.spotify.com/v1/me',
+                    headers: {
+                        'Authorization': 'Bearer ' + access_token
+                    },
+                    success: function (response) {
+                        //   userProfilePlaceholder.innerHTML = userProfileTemplate(response);
 
+                        $('#login').hide();
+                        $('#loggedin').show();
+                        $('#savedTrackList').show();
+                    }
+                });
+            } else {
+                // render initial screen
+                $('#login').show();
+                $('#loggedin').hide();
+                $('#savedTrackList').hide();
+
+            }
         }
     }
+});
 
+$(function () {
+    var socket = io.connect('http://localhost:8080');
     function capitalizeFirstLetter(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
     }
+    //Recent Tracks From LastFM
+    socket.on('recentTracks', function (data) {
+        var response = JSON.parse(data.body);
+        var recentTracks = response.recenttracks.track;
+        for (var i = 0; i < recentTracks.length; i++) {
+      //      console.log(recentTracks[i].artist['#text'] + " : " + recentTracks[i].name);
+        }
+    });
+    socket.on('TopTracks', function (data) {
+        var response = JSON.parse(data.body);
+        var toptracks = response.toptracks.track;
+        for (var i = 0; i < toptracks.length; i++) {
+            //      console.log(toptracks[i].artist.name + " : " + toptracks[i].name + '. This song has been played ' +  toptracks[i].playcount);
+        }
+    });
+    socket.on('TopArtist', function (data) {
+        var response = JSON.parse(data.body);
+        console.log(response);
+        var topartist = response.topartists.artist;
+        for (var i = 0; i < topartist.length; i++) {
+            console.log(topartist[i].name + '. This Artist has been played ' + topartist[i].playcount);
+        }
+    });
 
-//Makes changes to the toastr button
+    //Makes changes to the toastr button
+
     toastr.options = {
         "closeButton": false,
         "debug": false,
@@ -71,12 +121,71 @@ $(function() {
         "hideEasing": "linear",
         "showMethod": "fadeIn",
         "hideMethod": "fadeOut"
-    }
-    $("#deleteSongs").click(function() {
+    };
+
+    //Delete's the user's tracks from the database
+    $("#deleteSongs").click(function () {
         var socket = io.connect('http://localhost:8080');
         userName = document.getElementById('userName').value;
         socket.emit('clearDb', { action: userName });
         $(this).prop("disabled", true);
+    });
+    var someAray = [];
+    var artistProfileArray = [],
+            userRapGenreContainer = [],
+            userIndieGenreContainer = [],
+            userTechnoGenreContainer = [],
+            userPopGenreContainer = [],
+            userOldiesGenreContainer = [],
+            userUnknownGenreContainer = [];
+    var userGenreScore = { rap: 0, indie: 0, techno: 0, pop: 0, oldies: 0, unknown: 0 }
+
+    function hipsterFunction2(score) {
+        var totalScore = score.pop + score.rap + score.indie + score.techno + score.oldies;
+        //        console.log(totalScore);
+        var rapScore = Math.round((score.rap / totalScore) * 100);
+        var indieScore = Math.round((score.indie / totalScore) * 100);
+        var technoScore = Math.round((score.techno / totalScore) * 100);
+        var oldiesScore = Math.round((score.oldies / totalScore) * 100);
+        var popScore = Math.round((score.pop / totalScore) * 100);
+     //   console.log(" Rap: " + rapScore + "%   Indie: " + indieScore + "%   Techno/House: " + technoScore + "%   Oldies: " + oldiesScore + "%  Pop: " + popScore + "%  ");
+    }
+
+    socket.on('artistSoundPrintProfiles', function (data) {
+        someAray.push(data.profile);
+        var h = ' ';
+        var artist = data.profile;
+        var id = artist.id;
+        var genre = artist.genre;
+        var name = data.profile.name;
+        var pop = artist.hipsterStatus;
+        h += '<div>' + 'Artist Name is  ' + genre + '  ' + '</div>'
+        //    document.getElementById('artistOutput').innerHTML = h;
+        if (genre == undefined) {
+            //     console.log( name +' has not had a genre given to him yet');
+            userUnknownGenreContainer.push(genre);
+            userGenreScore.unknown += 1;
+        } else if ((genre.includes('rap')) || (genre.includes('hip')) || (genre.includes('crunk'))) {
+            userRapGenreContainer.push(genre);
+            userGenreScore.rap += 1;
+        } else if (genre.includes('indie') || (genre.includes('wave')) || (genre.includes('wonky'))) {
+            userIndieGenreContainer.push(genre);
+            userGenreScore.indie += 1;
+        } else if (genre.includes('elect') || (genre.includes('house')) || (genre.includes('edm')) || (genre.includes('dance')) || (genre.includes('tro'))) {
+            userTechnoGenreContainer.push(genre);
+            userGenreScore.techno += 1;
+        } else if (genre.includes('pop')) {
+            userPopGenreContainer.push(genre);
+            userGenreScore.pop += 1;
+        } else if ((genre.includes('soul')) || (genre.includes('disco'))) {
+            userOldiesGenreContainer.push(genre);
+            userGenreScore.oldies += 1;
+        } else {
+            console.log(genre);
+        }
+        hipsterFunction2(userGenreScore);
+     //   console.log(userGenreScore);
+        
     });
 
     $("#userName").change(function() {
@@ -84,7 +193,6 @@ $(function() {
             //variable that stores the a button
             var compareTracksButton = '<br > <button id="test" class="btn btn-info"> Compare Tracks </button>';
             $('#loadButton ').fadeOut('slow');
-            var socket = io.connect('http://localhost:8080');
             var userName = '';
             userName = document.getElementById('userName').value;
             var name = capitalizeFirstLetter(userName);
@@ -147,19 +255,14 @@ $(function() {
                                     h += '<div>' + num + '.  ' + songName + ' By:  ' + art1 + ' ft. ' + art2 + ' and ' + art3 + preview + '</div>';
                                 }
                             }
-                            //  console.log(songPop);
                             toastr.success('There are ' + trackArray.length + ' songs saved for ' + name + compareTracksButton);
-                            //       document.getElementById('trackOutput').innerHTML = h;
+                            document.getElementById('trackOutput').innerHTML = h;
                             removeDuplicates(trackArtistIdArray);
                             return average(songPop);
                         })();
                     }
-                    //if (!data) {
-                    //    console.log('Waiting for data to load');
-                    //    setInterval(function () { populateData() }, 1000);
-                    // } 
                     else {
-                        //    populateData();
+                           populateData();
                     }
                 });
             } else {
@@ -180,8 +283,7 @@ $(function() {
         socket.on('ids', function(data) {
             //   console.log(data);
             removeDuplicates(data.ids);
-        })
-
+        });
         function removeDuplicates(array) {
             var parsedIds = [];
             $.each(array, function(i, el) {
@@ -191,125 +293,5 @@ $(function() {
             socket.emit('parsedIds', { parsedIds: parsedIds });
             //   return createArtistForCall(parsedIds);
         }
-
-        function createArtistForCall(arr) {
-            var socket = io.connect('http://localhost:8080');
-            var h = '';
-            socket.on('artistSoundPrintProfiles', function(data) {
-                console.log(data);
-                var artist = data.profiles;
-                var id = artist.id;
-                var genre = artist.genre;
-                var name = data.profiles.name;
-                var pop = artist.hipsterStatus;
-                h += '<div>' + 'Artist Name is  ' + genre + '  ' + '</div>'
-                //    document.getElementById('artistOutput').innerHTML = h;
-                if (genre == undefined) {
-                    //     console.log( name +' has not had a genre given to him yet');
-                    userUnknownGenreContainer.push(genre);
-                    userGenreScore.unknown += 1;
-                } else if ((genre.includes('rap')) || (genre.includes('hip')) || (genre.includes('crunk'))) {
-                    userRapGenreContainer.push(genre);
-                    userGenreScore.rap += 1;
-                } else if (genre.includes('indie') || (genre.includes('wave')) || (genre.includes('wonky'))) {
-                    userIndieGenreContainer.push(genre);
-                    userGenreScore.indie += 1;
-                } else if (genre.includes('elect') || (genre.includes('house')) || (genre.includes('edm')) || (genre.includes('dance')) || (genre.includes('tro'))) {
-                    userTechnoGenreContainer.push(genre);
-                    userGenreScore.techno += 1;
-                } else if (genre.includes('pop')) {
-                    userPopGenreContainer.push(genre);
-                    userGenreScore.pop += 1;
-                } else if ((genre.includes('soul')) || (genre.includes('disco'))) {
-                    userOldiesGenreContainer.push(genre);
-                    userGenreScore.oldies += 1;
-                } else {
-                    console.log(genre);
-                }
-                hipsterFunction2(userGenreScore);
-            });
-
-        }
-
-        function hipsterFunction(score) {
-            var hipsterStatus = 0;
-            hipsterStatus = (100 - score);
-            toastr.info('Chances are ' + hipsterStatus + '% you are a  hipster');
-        }
-
     });
-
-    socket.on('artistSoundPrintProfiles', function (data) {
-        var h = ' ';
-        var artistProfileArray = [],
-            userRapGenreContainer = [],
-            userIndieGenreContainer = [],
-            userTechnoGenreContainer = [],
-            userPopGenreContainer = [],
-            userOldiesGenreContainer = [],
-            userUnknownGenreContainer = [];
-        var userGenreScore = { rap: 0, indie: 0, techno: 0, pop: 0, oldies: 0, unknown: 0 }
-        console.log(data.profiles);
-        var artist = data.profiles;
-        var id = artist.id;
-        var genre = artist.genre;
-        var name = data.profiles.name;
-        var pop = artist.hipsterStatus;
-        h += '<div>' + 'Artist Name is  ' + genre + '  ' + '</div>'
-        //    document.getElementById('artistOutput').innerHTML = h;
-        if (genre == undefined) {
-            //     console.log( name +' has not had a genre given to him yet');
-            userUnknownGenreContainer.push(genre);
-            userGenreScore.unknown += 1;
-        } else if ((genre.includes('rap')) || (genre.includes('hip')) || (genre.includes('crunk'))) {
-            userRapGenreContainer.push(genre);
-            userGenreScore.rap += 1;
-        } else if (genre.includes('indie') || (genre.includes('wave')) || (genre.includes('wonky'))) {
-            userIndieGenreContainer.push(genre);
-            userGenreScore.indie += 1;
-        } else if (genre.includes('elect') || (genre.includes('house')) || (genre.includes('edm')) || (genre.includes('dance')) || (genre.includes('tro'))) {
-            userTechnoGenreContainer.push(genre);
-            userGenreScore.techno += 1;
-        } else if (genre.includes('pop')) {
-            userPopGenreContainer.push(genre);
-            userGenreScore.pop += 1;
-        } else if ((genre.includes('soul')) || (genre.includes('disco'))) {
-            userOldiesGenreContainer.push(genre);
-            userGenreScore.oldies += 1;
-        } else {
-            console.log(genre);
-        }
-        hipsterFunction2(userGenreScore);
-
-
-        function hipsterFunction2(score) {
-            var totalScore = score.pop + score.rap + score.indie + score.techno + score.oldies;
-            // console.log(totalScore);
-            var rapScore = Math.round((score.rap / totalScore) * 100);
-            var indieScore = Math.round((score.indie / totalScore) * 100);
-            var technoScore = Math.round((score.techno / totalScore) * 100);
-            var oldiesScore = Math.round((score.oldies / totalScore) * 100);
-            var popScore = Math.round((score.pop / totalScore) * 100);
-            console.log(" Rap: " + rapScore + "%   Indie: " + indieScore + "%   Techno/House: " + technoScore + "%   Oldies: " + oldiesScore + "%  Pop: " + popScore + "%  ");
-           
-
-        }
-    });
-
-    // Two things, EchoNest Connection Test and Socket.io ReadableStreams Test. Need to read more documentation
-    $('#echo').click(function echoNest() {
-
-        //console.log('jlfajfd');
-        //var ss = require('socket.io-stream');
-        var socket = io.connect('http://localhost:8080');
-        //var stream = ss.createStream();
-        //ss(socket).emit('foo', stream);
-        //fs.createReadStream(data).pipe(stream);
-        var echo = 'send';
-        socket.emit('echo', { echo: echo })
-        
-    });
-    socket.on('fm', function(data) {
-        console.log(data);
-    })
 });
