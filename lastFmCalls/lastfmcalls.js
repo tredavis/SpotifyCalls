@@ -21,7 +21,7 @@ exports.userRecommendedArtists = function(username, apiKey) {
 };
 
 exports.userTopArtist = function (username, apiKey) {
-    return 'http://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=' + username + '&api_key=' + apiKey + '&format=json';
+    return 'http://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=' + username + '&api_key=' + apiKey + '&limit=100&format=json';
 };
 
 exports.userWeeklyCharts = function(username, apiKey){
