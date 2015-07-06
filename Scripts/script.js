@@ -2,7 +2,6 @@ $(function () {
     var socket = io.connect('http://localhost:8080');
     //LastFm Query String
     if (window.location.search && window.location.search.includes('?token')) {
-        console.log('?token');
         function getLastFMHashParams() {
             var a = window.location.search.substring(1);
             var hashParams = {};
@@ -16,8 +15,7 @@ $(function () {
         }
         var params = getLastFMHashParams();
         return CurrentUserLastFm(params);
-    }
-        // Spotify Query String
+    }        // Spotify Query String
     else {
         function getSpotifyHashParams() {
             var hashParams = {};
@@ -41,7 +39,16 @@ $(function () {
         })
         console.log('data');
     }
-
+    function loginDisplay() {
+        $('#login').hide();
+        $('#loggedin').show();
+        $('#savedTrackList').show();
+    }
+    function logoutDisplay() {
+        $('#login').show();
+        $('#loggedin').hide();
+        $('#savedTrackList').hide();
+    }
     function CurrentUserSpotify(params) {
         var access_token = params.access_token,
        refresh_token = params.refresh_token,
@@ -56,19 +63,11 @@ $(function () {
                         'Authorization': 'Bearer ' + access_token
                     },
                     success: function (response) {
-                        //   userProfilePlaceholder.innerHTML = userProfileTemplate(response);
-
-                        $('#login').hide();
-                        $('#loggedin').show();
-                        $('#savedTrackList').show();
+                        loginDisplay();
                     }
                 });
             } else {
-                // render initial screen
-                $('#login').show();
-                $('#loggedin').hide();
-                $('#savedTrackList').hide();
-
+                logoutDisplay();
             }
         }
     }
@@ -76,33 +75,10 @@ $(function () {
 
 $(function () {
     var socket = io.connect('http://localhost:8080');
+
     function capitalizeFirstLetter(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
     }
-    //Recent Tracks From LastFM
-    socket.on('recentTracks', function (data) {
-        var response = JSON.parse(data.body);
-        var recentTracks = response.recenttracks.track;
-        for (var i = 0; i < recentTracks.length; i++) {
-      //      console.log(recentTracks[i].artist['#text'] + " : " + recentTracks[i].name);
-        }
-    });
-    socket.on('TopTracks', function (data) {
-        var response = JSON.parse(data.body);
-        var toptracks = response.toptracks.track;
-        for (var i = 0; i < toptracks.length; i++) {
-            //      console.log(toptracks[i].artist.name + " : " + toptracks[i].name + '. This song has been played ' +  toptracks[i].playcount);
-        }
-    });
-    socket.on('TopArtist', function (data) {
-        var response = JSON.parse(data.body);
-        console.log(response);
-        var topartist = response.topartists.artist;
-        for (var i = 0; i < topartist.length; i++) {
-            console.log(topartist[i].name + '. This Artist has been played ' + topartist[i].playcount);
-        }
-    });
-
     //Makes changes to the toastr button
 
     toastr.options = {
@@ -142,13 +118,13 @@ $(function () {
 
     function hipsterFunction2(score) {
         var totalScore = score.pop + score.rap + score.indie + score.techno + score.oldies;
-                console.log(totalScore);
+    //    console.log(totalScore);
         var rapScore = Math.round((score.rap / totalScore) * 100);
         var indieScore = Math.round((score.indie / totalScore) * 100);
         var technoScore = Math.round((score.techno / totalScore) * 100);
         var oldiesScore = Math.round((score.oldies / totalScore) * 100);
         var popScore = Math.round((score.pop / totalScore) * 100);
-      console.log(" Rap: " + rapScore + "%   Indie: " + indieScore + "%   Techno/House: " + technoScore + "%   Oldies: " + oldiesScore + "%  Pop: " + popScore + "%  ");
+   //     console.log(" Rap: " + rapScore + "%   Indie: " + indieScore + "%   Techno/House: " + technoScore + "%   Oldies: " + oldiesScore + "%  Pop: " + popScore + "%  ");
     }
 
     socket.on('artistSoundPrintProfiles', function (data) {
@@ -184,11 +160,11 @@ $(function () {
             console.log(genre);
         }
         hipsterFunction2(userGenreScore);
-        console.log(userGenreScore);
-        
+     //   console.log(userGenreScore);
+
     });
 
-    $("#userName").change(function() {
+    $("#userName").change(function () {
         (function loadTracks() {
             //variable that stores the a button
             var compareTracksButton = '<br > <button id="test" class="btn btn-info"> Compare Tracks </button>';
@@ -198,7 +174,7 @@ $(function () {
             var name = capitalizeFirstLetter(userName);
             if (userName != 'null') {
                 socket.emit('user', { userName: userName });
-                socket.on('tracks', function(data) {
+                socket.on('tracks', function (data) {
                     if (data) {
                         (function populateData() {
                             //    console.log(data); //Sam and Tyler
@@ -262,7 +238,7 @@ $(function () {
                         })();
                     }
                     else {
-                           populateData();
+                        populateData();
                     }
                 });
             } else {
@@ -273,20 +249,20 @@ $(function () {
         function average(arr) {
             var total = 0;
             var avg;
-            $.each(arr, function() {
+            $.each(arr, function () {
                 total += this;
                 avg = (Math.round(total / arr.length));
             });
             return hipsterFunction2(avg)
         };
 
-        socket.on('ids', function(data) {
+        socket.on('ids', function (data) {
             //   console.log(data);
             removeDuplicates(data.ids);
         });
         function removeDuplicates(array) {
             var parsedIds = [];
-            $.each(array, function(i, el) {
+            $.each(array, function (i, el) {
                 if ($.inArray(el, parsedIds) === -1) parsedIds.push(el);
             });
             //    console.log(parsedIds)

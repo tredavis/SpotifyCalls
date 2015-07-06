@@ -13,9 +13,9 @@
 }
 
 .text-overflow {
-    /*overflow: hidden;*/
+    overflow: hidden;
     text-overflow: ellipsis;
-    /*white-space: nowrap;*/
+    white-space: nowrap;
     width: 100%;
 }
 h2{
@@ -37,5 +37,5 @@ h2{
 
 #greenBanner {
     background-color:#009000;
-    color: #000;
-}
+    color: #00
+
