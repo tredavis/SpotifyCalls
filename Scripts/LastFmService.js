@@ -26,11 +26,9 @@ soundPrint.service('LastFmService', ['$http', '$q', function ($http, $q) {
             for (var i = 0; i < toptracks.length; i++) {
                 var _currentTrack = toptracks[i];
 
-
-                //    function extractSongImage(track) {
                 if (_currentTrack.image != null)
-                    artists.push(_currentTrack.image[2]);
-                //      };
+                //    artists.push(_currentTrack.artist);
+                artists.push(_currentTrack.image[3]);
 
                 if (_currentTrack.artist.mbid) {
                     musicBrainzIds.push(_currentTrack.artist.mbid);
