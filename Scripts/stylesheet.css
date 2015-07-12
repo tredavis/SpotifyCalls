@@ -1,4 +1,4 @@
-		body {
+body {
 }
 
 #savedTrackList {
@@ -18,24 +18,30 @@
     white-space: nowrap;
     width: 100%;
 }
-h2{
+
+h2 {
     text-align: center;
 }
-#trackOutput{
-    word-wrap:break-word;
-    width: 500px    
+
+#trackOutput {
+    word-wrap: break-word;
+    width: 500px;
 }
 
 #trackOutputDiv {
-   
 }
 
 #friendDropDown {
-    
-    text-align:center;
+    text-align: center;
 }
 
 #greenBanner {
-    background-color:#009000;
-    color: #00
+    background-color: #009000;
+    color: #000;
+}
 
+div#artistImages {
+    width: 60px;
+    height: 60px;
+    border: 1px solid black;
+}

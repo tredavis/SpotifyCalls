@@ -11,6 +11,7 @@
 <body ng-controller="HomeController">
     <div class="container">
         <div class="row">
+
             <div id="login" class="col-sm-12">
                 <h1>This is an example of the Authorization Code flow</h1>
                 <a href="/login" class="btn btn-primary">Log in with Spotify</a>
@@ -39,9 +40,9 @@
                 <div id="trackOutput">
                 </div>
             </div>
-            <div id="scoreOutput">
-
-            </div>
+            <div id="scoreOutput"></div>
+            <div id="artistImages"></div>
+           
         </div>
     </div>
 
@@ -51,9 +52,12 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.0/angular.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0rc1/angular-route.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.0/angular-animate.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
     <script src="app.js"></script>
     <script src="LastFmService.js"></script>
+    <script src="ThirdPartyLoginService.js"></script>
     <script src="HomeController.js"></script>
     <script src="script.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
