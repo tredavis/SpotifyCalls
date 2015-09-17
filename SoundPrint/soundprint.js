@@ -1,6 +1,17 @@
 //SoundPrint Global Object
 var MongoClient = require('mongodb').MongoClient;
+var express = require('express'); // Express web server framework
+var cookieParser = require('cookie-parser');
+var app = express();
+var server = require('http').createServer(app);
+var io = require('socket.io')(server);
+app.use(express.static(__dirname))
+   .use(cookieParser());
 
+app.use(express.static('SoundPrint')).use(cookieParser());
+
+
+	
 
 function SoundPrint() {
 	this.User = {
@@ -47,29 +58,32 @@ SoundPrint.prototype.ClearUser = function(soundPrintUser){
 	soundPrintUser.SongLibrary.Spotify = null;
 	soundPrintUser.SongLibrary.LastFm = null;
 
-	return sUser
+	return soundPrintUser;
 }
 
-SoundPrint.prototype.GetUserTracks = function(user){
-	
-	MongoClient.connect("mongodb://localhost:27017/soundprint", function (err, db){
-		var collection = db.collection(user.userName);
-		if(!err){
-			collection.count(function(error, count){
-				if(count){
-					var stream = collection.find().toArray(function(err, items){
-						
-						if(!err){
+SoundPrint.prototype.GetUserTracks = function (user) {
+	io.on('connection', function (client) {
+
+		MongoClient.connect("mongodb://localhost:27017/soundprint", function (err, db) {
+			var collection = db.collection(user.userName);
+			if (!err) {
+				collection.count(function (error, count) {
+					if (count) {
+						var stream = collection.find().toArray(function (err, items) {
+							client.emit("tracks", {tracks: items})
 							
-						}
-					//		console.log(items);
-					})
-				}
-				else{
-					console.log("There are no tracks");
-				}
-			})
-		}
+							if (!err) {
+
+							}
+							//		console.log(items);
+						})
+					}
+					else {
+						console.log("There are no tracks");
+					}
+				})
+			}
+		});
 	});
 };
 

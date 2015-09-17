@@ -4,6 +4,10 @@
 
 $(function () {
     var socket = io.connect('http://localhost:8080');
+    
+    socket.on('tracks', function(data){
+        console.log(data + "hiadlfa");
+    });
 
     function capitalizeFirstLetter(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
